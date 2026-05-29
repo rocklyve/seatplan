@@ -22,11 +22,8 @@
   }
 }
 
-.guest-card.dragging {
-  cursor: grabbing;
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  background: white;
-  z-index: 1000;
+.guest-card.readonly {
+  cursor: default;
 }
 
 .guest-name {

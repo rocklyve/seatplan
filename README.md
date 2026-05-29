@@ -43,12 +43,14 @@ Edit `secrets.json`:
 
 ```json
 {
-  "sitePassword": "your-password-here",
+  "adminPassword": "your-admin-password",
+  "viewerPassword": "your-viewer-password",
   "sessionSecret": "a-long-random-string"
 }
 ```
 
-- **sitePassword** — required to open the app; once logged in, all changes save automatically
+- **adminPassword** — full access: view, drag, edit, configure
+- **viewerPassword** — read-only access: can see the plan and export, but cannot make changes
 - **sessionSecret** — used to sign the session cookie; use a long random string
 
 `secrets.json` is git-ignored and never committed.

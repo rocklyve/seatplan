@@ -17,7 +17,8 @@ function Login({ onLogin }) {
         body: JSON.stringify({ password }),
       })
       if (res.ok) {
-        onLogin()
+        const data = await res.json()
+        onLogin(data.role)
       } else {
         setError('Wrong password. Please try again.')
         setPassword('')

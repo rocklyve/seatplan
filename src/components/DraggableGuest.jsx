@@ -1,9 +1,10 @@
 import { useDraggable } from '@dnd-kit/core'
 import './DraggableGuest.css'
 
-function DraggableGuest({ guest, onRemove }) {
+function DraggableGuest({ guest, onRemove, readOnly }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: guest.id,
+    disabled: readOnly,
   })
 
   const style = transform ? {
@@ -15,21 +16,23 @@ function DraggableGuest({ guest, onRemove }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`guest-card ${isDragging ? 'dragging' : ''}`}
+      className={`guest-card ${isDragging ? 'dragging' : ''} ${readOnly ? 'readonly' : ''}`}
       {...listeners}
       {...attributes}
     >
       <span className="guest-name">{guest.name}</span>
-      <button
-        onClick={(e) => {
-          e.stopPropagation()
-          onRemove(guest.id)
-        }}
-        className="remove-btn"
-        title="Remove guest"
-      >
-        ×
-      </button>
+      {!readOnly && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove(guest.id)
+          }}
+          className="remove-btn"
+          title="Remove guest"
+        >
+          ×
+        </button>
+      )}
     </div>
   )
 }

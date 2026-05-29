@@ -36,12 +36,18 @@ if (process.env.NODE_ENV === 'production') {
 
 // ── Auth endpoints ────────────────────────────────────────────────────────────
 
-// POST /api/login — verify site password, establish session
+// POST /api/login — verify password, establish session with role
 app.post('/api/login', (req, res) => {
   const { password } = req.body
-  if (password === secrets.sitePassword) {
+  if (password === secrets.adminPassword) {
     req.session.authenticated = true
-    return res.json({ ok: true })
+    req.session.role = 'admin'
+    return res.json({ ok: true, role: 'admin' })
+  }
+  if (password === secrets.viewerPassword) {
+    req.session.authenticated = true
+    req.session.role = 'viewer'
+    return res.json({ ok: true, role: 'viewer' })
   }
   res.status(401).json({ error: 'Wrong password' })
 })
@@ -54,13 +60,21 @@ app.post('/api/logout', (req, res) => {
 
 // GET /api/session — lets the client check if it is already logged in
 app.get('/api/session', (req, res) => {
-  res.json({ authenticated: req.session.authenticated === true })
+  if (req.session.authenticated) {
+    return res.json({ authenticated: true, role: req.session.role })
+  }
+  res.json({ authenticated: false })
 })
 
-// ── Auth middleware for all remaining routes ──────────────────────────────────
+// ── Auth middleware ───────────────────────────────────────────────────────────
 const requireAuth = (req, res, next) => {
   if (req.session.authenticated) return next()
   res.status(401).json({ error: 'Not authenticated' })
+}
+
+const requireAdmin = (req, res, next) => {
+  if (req.session.authenticated && req.session.role === 'admin') return next()
+  res.status(403).json({ error: 'Insufficient permissions' })
 }
 
 // ── Plan endpoints (all require login) ───────────────────────────────────────
@@ -79,8 +93,8 @@ app.get('/api/plan', requireAuth, (req, res) => {
   }
 })
 
-// POST /api/plan — save the plan (session auth is sufficient)
-app.post('/api/plan', requireAuth, (req, res) => {
+// POST /api/plan — save the plan (admin only)
+app.post('/api/plan', requireAdmin, (req, res) => {
   const { guests, tables, version } = req.body
   try {
     const payload = { guests, tables, version, savedAt: new Date().toISOString() }

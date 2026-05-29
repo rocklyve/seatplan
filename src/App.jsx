@@ -8,6 +8,7 @@ import './App.css'
 
 function App() {
   const [authenticated, setAuthenticated] = useState(null) // null = checking, false = login, true = in
+  const [role, setRole] = useState(null) // 'admin' | 'viewer'
   const [guests, setGuests] = useState([])
   const [tables, setTables] = useState([])
   const [activeGuest, setActiveGuest] = useState(null)
@@ -22,7 +23,10 @@ function App() {
   useEffect(() => {
     fetch('/api/session')
       .then(res => res.json())
-      .then(data => setAuthenticated(data.authenticated))
+      .then(data => {
+        setAuthenticated(data.authenticated)
+        if (data.authenticated) setRole(data.role)
+      })
       .catch(() => setAuthenticated(false))
   }, [])
 
@@ -84,7 +88,7 @@ function App() {
   const handleDragEnd = (event) => {
     const { active, over } = event
     setActiveGuest(null)
-    if (!over) return
+    if (!over || isViewer) return
 
     const guestId = active.id
     const targetId = over.id
@@ -182,6 +186,7 @@ function App() {
   const handleLogout = () => {
     fetch('/api/logout', { method: 'POST' }).finally(() => {
       setAuthenticated(false)
+      setRole(null)
       serverLoadedRef.current = false
     })
   }
@@ -212,8 +217,10 @@ function App() {
   }
 
   if (!authenticated) {
-    return <Login onLogin={() => setAuthenticated(true)} />
+    return <Login onLogin={(r) => { setAuthenticated(true); setRole(r) }} />
   }
+
+  const isViewer = role === 'viewer'
 
   return (
     <DndContext
@@ -232,16 +239,19 @@ function App() {
             {saveStatus === 'saving' && <span className="save-status saving">Saving…</span>}
             {saveStatus === 'saved' && <span className="save-status saved">Saved</span>}
             {saveStatus === 'error' && <span className="save-status error">Save failed</span>}
+            {isViewer && <span className="save-status saving">View only</span>}
             <div className="header-actions">
-              <button onClick={handleUndo} className="action-btn" title="Undo last assignment" disabled={!canUndo}>↶ Undo</button>
-              <button onClick={handleRedo} className="action-btn" title="Redo assignment" disabled={!canRedo}>↷ Redo</button>
+              {!isViewer && <button onClick={handleUndo} className="action-btn" title="Undo last assignment" disabled={!canUndo}>↶ Undo</button>}
+              {!isViewer && <button onClick={handleRedo} className="action-btn" title="Redo assignment" disabled={!canRedo}>↷ Redo</button>}
               <button onClick={handleExportData} className="action-btn" title="Export to file">💾 Export</button>
-              <label className="action-btn" title="Import from file">
-                📂 Import
-                <input type="file" accept=".json" onChange={handleImportData} style={{ display: 'none' }} />
-              </label>
-              <button onClick={handleClearData} className="action-btn danger" title="Clear all data">🗑️ Clear</button>
-              <button onClick={() => setShowConfig(!showConfig)} className="config-btn">⚙️ Configure</button>
+              {!isViewer && (
+                <label className="action-btn" title="Import from file">
+                  📂 Import
+                  <input type="file" accept=".json" onChange={handleImportData} style={{ display: 'none' }} />
+                </label>
+              )}
+              {!isViewer && <button onClick={handleClearData} className="action-btn danger" title="Clear all data">🗑️ Clear</button>}
+              {!isViewer && <button onClick={() => setShowConfig(!showConfig)} className="config-btn">⚙️ Configure</button>}
               <button onClick={handleLogout} className="action-btn" title="Log out">🔓 Logout</button>
             </div>
           </div>
@@ -257,6 +267,7 @@ function App() {
             onAddGuest={handleAddGuest}
             onAddGuests={handleAddGuests}
             onRemoveGuest={handleRemoveGuest}
+            readOnly={isViewer}
           />
           <TableView tables={tables} guests={guests} />
         </div>

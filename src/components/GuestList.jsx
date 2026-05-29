@@ -3,7 +3,7 @@ import { useDroppable } from '@dnd-kit/core'
 import DraggableGuest from './DraggableGuest'
 import './GuestList.css'
 
-function GuestList({ guests, onAddGuest, onAddGuests, onRemoveGuest }) {
+function GuestList({ guests, onAddGuest, onAddGuests, onRemoveGuest, readOnly }) {
   const [newGuestName, setNewGuestName] = useState('')
   const [showBulkAdd, setShowBulkAdd] = useState(false)
   const [bulkGuestText, setBulkGuestText] = useState('')
@@ -40,25 +40,29 @@ function GuestList({ guests, onAddGuest, onAddGuests, onRemoveGuest }) {
         <span className="guest-count">{guests.length}</span>
       </div>
 
-      <form onSubmit={handleSubmit} className="add-guest-form">
-        <input
-          type="text"
-          value={newGuestName}
-          onChange={(e) => setNewGuestName(e.target.value)}
-          placeholder="Enter guest name..."
-          className="guest-input"
-        />
-        <button type="submit" className="add-btn">Add</button>
-      </form>
+      {!readOnly && (
+        <form onSubmit={handleSubmit} className="add-guest-form">
+          <input
+            type="text"
+            value={newGuestName}
+            onChange={(e) => setNewGuestName(e.target.value)}
+            placeholder="Enter guest name..."
+            className="guest-input"
+          />
+          <button type="submit" className="add-btn">Add</button>
+        </form>
+      )}
 
-      <button
-        onClick={() => setShowBulkAdd(!showBulkAdd)}
-        className="bulk-add-toggle"
-      >
-        {showBulkAdd ? '− Single Add' : '+ Bulk Add'}
-      </button>
+      {!readOnly && (
+        <button
+          onClick={() => setShowBulkAdd(!showBulkAdd)}
+          className="bulk-add-toggle"
+        >
+          {showBulkAdd ? '− Single Add' : '+ Bulk Add'}
+        </button>
+      )}
 
-      {showBulkAdd && (
+      {!readOnly && showBulkAdd && (
         <div className="bulk-add-section">
           <textarea
             value={bulkGuestText}
@@ -85,6 +89,7 @@ function GuestList({ guests, onAddGuest, onAddGuests, onRemoveGuest }) {
               key={guest.id}
               guest={guest}
               onRemove={onRemoveGuest}
+              readOnly={readOnly}
             />
           ))
         )}
