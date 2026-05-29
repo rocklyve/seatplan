@@ -107,9 +107,8 @@
   }
 }
 
-.table-guest.dragging {
-  cursor: grabbing;
-  opacity: 0.5;
+.table-guest.readonly {
+  cursor: default;
 }
 
 .full-indicator {

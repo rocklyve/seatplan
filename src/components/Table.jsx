@@ -2,9 +2,10 @@ import { useDroppable } from '@dnd-kit/core'
 import { useDraggable } from '@dnd-kit/core'
 import './Table.css'
 
-function TableGuest({ guest }) {
+function TableGuest({ guest, readOnly }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: guest.id,
+    disabled: readOnly,
   })
 
   const style = transform ? {
@@ -16,18 +17,19 @@ function TableGuest({ guest }) {
     <div
       ref={setNodeRef}
       style={style}
-      className={`table-guest ${isDragging ? 'dragging' : ''}`}
-      {...listeners}
-      {...attributes}
+      className={`table-guest ${isDragging ? 'dragging' : ''} ${readOnly ? 'readonly' : ''}`}
+      {...(!readOnly ? listeners : {})}
+      {...(!readOnly ? attributes : {})}
     >
       {guest.name}
     </div>
   )
 }
 
-function Table({ table, guests }) {
+function Table({ table, guests, readOnly }) {
   const { setNodeRef, isOver } = useDroppable({
     id: `table-${table.id}`,
+    disabled: readOnly,
   })
 
   const isFull = guests.length >= table.capacity
@@ -59,7 +61,7 @@ function Table({ table, guests }) {
           </div>
         ) : (
           guests.map(guest => (
-            <TableGuest key={guest.id} guest={guest} />
+            <TableGuest key={guest.id} guest={guest} readOnly={readOnly} />
           ))
         )}
       </div>

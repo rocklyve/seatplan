@@ -17,8 +17,8 @@ function DraggableGuest({ guest, onRemove, readOnly }) {
       ref={setNodeRef}
       style={style}
       className={`guest-card ${isDragging ? 'dragging' : ''} ${readOnly ? 'readonly' : ''}`}
-      {...listeners}
-      {...attributes}
+      {...(!readOnly ? listeners : {})}
+      {...(!readOnly ? attributes : {})}
     >
       <span className="guest-name">{guest.name}</span>
       {!readOnly && (

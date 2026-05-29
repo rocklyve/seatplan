@@ -1,7 +1,7 @@
 import Table from './Table'
 import './TableView.css'
 
-function TableView({ tables, guests }) {
+function TableView({ tables, guests, readOnly }) {
   return (
     <div className="table-view">
       <div className="table-view-header">
@@ -22,6 +22,7 @@ function TableView({ tables, guests }) {
                 key={table.id}
                 table={table}
                 guests={tableGuests}
+                readOnly={readOnly}
               />
             )
           })}

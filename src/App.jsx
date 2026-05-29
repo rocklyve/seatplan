@@ -269,7 +269,7 @@ function App() {
             onRemoveGuest={handleRemoveGuest}
             readOnly={isViewer}
           />
-          <TableView tables={tables} guests={guests} />
+          <TableView tables={tables} guests={guests} readOnly={isViewer} />
         </div>
 
         <DragOverlay>
