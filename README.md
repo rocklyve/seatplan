@@ -55,31 +55,81 @@ Edit `secrets.json`:
 
 ## Running in Development
 
-`npm run dev` starts both the Vite dev server (port 5173) and the Express API server (port 3001) together:
+`npm run dev` is for **local development on your own machine only**. It starts Vite (port 5173) and the Express API server (port 3001) separately. Vite is not network-accessible by default.
 
 ```bash
 npm run dev
 ```
 
-Open `http://localhost:5173` in your browser.
+## Deploying to a Server
 
-You can also start them separately:
-
-```bash
-npm run dev:vite    # Vite only
-npm run dev:server  # Express only
-```
-
-## Running in Production
-
-Build the frontend, then run the Express server which serves the built files:
+On any server (Proxmox LXC, VPS, etc.), always use **production mode**. This builds the frontend once and lets Express serve everything on a single port:
 
 ```bash
 npm run build
 NODE_ENV=production node server.js
 ```
 
-The app is available at `http://localhost:3001` (or set the `PORT` environment variable).
+The app is then available at `http://<server-ip>:3001`.
+
+To use port 80 instead (no port number in the URL):
+
+```bash
+PORT=80 NODE_ENV=production node server.js
+```
+
+### Auto-start with systemd
+
+To have the app start automatically on boot and restart on crash, create a systemd service:
+
+```bash
+nano /etc/systemd/system/seatplan.service
+```
+
+```ini
+[Unit]
+Description=Wedding Seat Planner
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/seatplan
+ExecStart=/usr/bin/node server.js
+Environment=NODE_ENV=production
+Environment=PORT=3001
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+```
+
+Then enable and start it:
+
+```bash
+systemctl daemon-reload
+systemctl enable seatplan
+systemctl start seatplan
+systemctl status seatplan
+```
+
+Useful commands:
+
+```bash
+systemctl stop seatplan      # stop
+systemctl restart seatplan   # restart after code changes
+journalctl -u seatplan -f    # live logs
+```
+
+### Deploying updates
+
+After pulling new code on the server, run:
+
+```bash
+./restart.sh
+```
+
+This installs dependencies, rebuilds the frontend, and restarts the service.
 
 ## How to Use
 
