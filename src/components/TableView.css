@@ -1,0 +1,41 @@
+.table-view {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  min-height: calc(100vh - 180px);
+}
+
+.table-view-header {
+  margin-bottom: 1.5rem;
+}
+
+.table-view-header h2 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0;
+}
+
+.no-tables {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: #999;
+}
+
+.no-tables h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .tables-grid {
+    grid-template-columns: 1fr;
+  }
+}

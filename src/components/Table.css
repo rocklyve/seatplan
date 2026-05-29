@@ -1,0 +1,119 @@
+.table {
+  background: #fafafa;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1.2rem;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.table.drag-over {
+  border-color: #667eea;
+  background: #f0f4ff;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.table.full {
+  border-color: #ff9800;
+  background: #fff8f0;
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.table-header h3 {
+  font-size: 1.1rem;
+  color: #333;
+  margin: 0;
+}
+
+.capacity-badge {
+  background: #667eea;
+  color: white;
+  padding: 0.3rem 0.7rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.table.full .capacity-badge {
+  background: #ff9800;
+}
+
+.capacity-bar {
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.capacity-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea, #764ba2);
+  transition: width 0.3s;
+}
+
+.table.full .capacity-fill {
+  background: #ff9800;
+}
+
+.table-guests {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-height: 80px;
+}
+
+.empty-table {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: #999;
+  font-style: italic;
+  border: 2px dashed #ddd;
+  border-radius: 8px;
+}
+
+.table.drag-over .empty-table {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.table-guest {
+  background: white;
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+  font-size: 0.9rem;
+  color: #333;
+  cursor: grab;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.table-guest:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
+}
+
+.table-guest.dragging {
+  cursor: grabbing;
+  opacity: 0.5;
+}
+
+.full-indicator {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #ff9800;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: bold;
+}
