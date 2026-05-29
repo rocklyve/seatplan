@@ -21,6 +21,7 @@ pnpm-debug.log*
 
 # Server-side data (not tracked in git)
 seatplan.json
+secrets.json
 
 # Editor / OS
 .DS_Store
