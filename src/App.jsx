@@ -14,8 +14,6 @@ function App() {
   const [showConfig, setShowConfig] = useState(false)
   const [history, setHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(-1)
-  // Save passcode entered once per session; null = not yet entered
-  const [savePasscode, setSavePasscode] = useState(null)
   const [saveStatus, setSaveStatus] = useState('') // '', 'saving', 'saved', 'error'
   // Track whether initial server load has completed so we don't save before loading
   const serverLoadedRef = useRef(false)
@@ -46,17 +44,16 @@ function App() {
       })
   }, [authenticated])
 
-  // ── Auto-save whenever data changes (requires passcode) ──────────────────────
+  // ── Auto-save whenever data changes ─────────────────────────────────────────
   useEffect(() => {
     if (!serverLoadedRef.current) return
     if (guests.length === 0 && tables.length === 0) return
-    if (!savePasscode) return // passcode not yet provided; skip silent auto-save
 
     setSaveStatus('saving')
     fetch('/api/plan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ guests, tables, version: '1.0', passcode: savePasscode }),
+      body: JSON.stringify({ guests, tables, version: '1.0' }),
     })
       .then(res => {
         if (res.ok) {
@@ -68,14 +65,6 @@ function App() {
       })
       .catch(() => setSaveStatus('error'))
   }, [guests, tables]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // ── Prompt for passcode the first time the user makes a change ───────────────
-  const requirePasscode = () => {
-    if (savePasscode) return savePasscode
-    const entered = prompt('Enter the save passcode:')
-    if (entered) setSavePasscode(entered)
-    return entered
-  }
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -96,9 +85,6 @@ function App() {
     const { active, over } = event
     setActiveGuest(null)
     if (!over) return
-
-    const pc = requirePasscode()
-    if (!pc) return // user cancelled passcode prompt
 
     const guestId = active.id
     const targetId = over.id
@@ -121,8 +107,6 @@ function App() {
   }
 
   const handleAddGuest = (name) => {
-    const pc = requirePasscode()
-    if (!pc) return
     setGuests([...guests, {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       name,
@@ -131,8 +115,6 @@ function App() {
   }
 
   const handleAddGuests = (names) => {
-    const pc = requirePasscode()
-    if (!pc) return
     setGuests([...guests, ...names.map((name, i) => ({
       id: `${Date.now()}-${i}-${Math.random().toString(36).substr(2, 9)}`,
       name,
@@ -141,14 +123,10 @@ function App() {
   }
 
   const handleRemoveGuest = (id) => {
-    const pc = requirePasscode()
-    if (!pc) return
     setGuests(guests.filter(g => g.id !== id))
   }
 
   const handleUpdateTables = (numTables, seatsPerTable) => {
-    const pc = requirePasscode()
-    if (!pc) return
     setTables(Array.from({ length: numTables }, (_, i) => ({
       id: (i + 1).toString(),
       number: i + 1,
@@ -174,8 +152,6 @@ function App() {
   const handleImportData = (event) => {
     const file = event.target.files?.[0]
     if (!file) return
-    const pc = requirePasscode()
-    if (!pc) { event.target.value = ''; return }
     const reader = new FileReader()
     reader.onload = (e) => {
       try {
@@ -195,25 +171,17 @@ function App() {
   }
 
   const handleClearData = () => {
-    const pc = requirePasscode()
-    if (!pc) return
     if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
       setGuests([])
       setTables([])
       setHistory([])
       setHistoryIndex(-1)
-      fetch('/api/plan', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ guests: [], tables: [], version: '1.0', passcode: pc }),
-      }).catch(err => console.error('Failed to clear plan on server:', err))
     }
   }
 
   const handleLogout = () => {
     fetch('/api/logout', { method: 'POST' }).finally(() => {
       setAuthenticated(false)
-      setSavePasscode(null)
       serverLoadedRef.current = false
     })
   }
@@ -263,7 +231,7 @@ function App() {
             <span>{unassignedGuests.length} Unassigned</span>
             {saveStatus === 'saving' && <span className="save-status saving">Saving…</span>}
             {saveStatus === 'saved' && <span className="save-status saved">Saved</span>}
-            {saveStatus === 'error' && <span className="save-status error" title="Check save passcode">Save failed</span>}
+            {saveStatus === 'error' && <span className="save-status error">Save failed</span>}
             <div className="header-actions">
               <button onClick={handleUndo} className="action-btn" title="Undo last assignment" disabled={!canUndo}>↶ Undo</button>
               <button onClick={handleRedo} className="action-btn" title="Redo assignment" disabled={!canRedo}>↷ Redo</button>

@@ -79,12 +79,9 @@ app.get('/api/plan', requireAuth, (req, res) => {
   }
 })
 
-// POST /api/plan — save the plan; requires the save passcode in addition to session
+// POST /api/plan — save the plan (session auth is sufficient)
 app.post('/api/plan', requireAuth, (req, res) => {
-  const { passcode, guests, tables, version } = req.body
-  if (passcode !== secrets.savePasscode) {
-    return res.status(403).json({ error: 'Wrong passcode' })
-  }
+  const { guests, tables, version } = req.body
   try {
     const payload = { guests, tables, version, savedAt: new Date().toISOString() }
     writeFileSync(DATA_FILE, JSON.stringify(payload, null, 2), 'utf-8')

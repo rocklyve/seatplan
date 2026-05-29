@@ -43,14 +43,12 @@ Edit `secrets.json`:
 
 ```json
 {
-  "sitePassword": "your-site-password",
-  "savePasscode": "your-save-passcode",
+  "sitePassword": "your-password-here",
   "sessionSecret": "a-long-random-string"
 }
 ```
 
-- **sitePassword** — required to open the app in the browser
-- **savePasscode** — required to save changes to the server (prompted once per session)
+- **sitePassword** — required to open the app; once logged in, all changes save automatically
 - **sessionSecret** — used to sign the session cookie; use a long random string
 
 `secrets.json` is git-ignored and never committed.
@@ -101,7 +99,7 @@ The app is available at `http://localhost:3001` (or set the `PORT` environment v
 2. Drag between tables to reassign
 3. Drag back to the unassigned area to unassign
 
-On first change you will be prompted for the **save passcode** — enter it once and all subsequent auto-saves in the session are silent.
+Changes are saved automatically to the server.
 
 ### Removing Guests
 
