@@ -19,6 +19,9 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# Server-side data (not tracked in git)
+seatplan.json
+
 # Editor / OS
 .DS_Store
 .idea/

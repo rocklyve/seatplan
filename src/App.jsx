@@ -1,11 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor, closestCenter } from '@dnd-kit/core'
 import GuestList from './components/GuestList'
 import TableView from './components/TableView'
 import Configuration from './components/Configuration'
 import './App.css'
-
-const STORAGE_KEY = 'wedding-seat-planner-data'
 
 function App() {
   const [guests, setGuests] = useState([])
@@ -14,27 +12,35 @@ function App() {
   const [showConfig, setShowConfig] = useState(false)
   const [history, setHistory] = useState([])
   const [historyIndex, setHistoryIndex] = useState(-1)
+  // Track whether initial server load has completed so we don't save before loading
+  const serverLoadedRef = useRef(false)
 
-  // Load data from localStorage on mount
+  // Auto-load from server on mount
   useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY)
-    if (savedData) {
-      try {
-        const { guests: savedGuests, tables: savedTables } = JSON.parse(savedData)
-        setGuests(savedGuests || [])
-        setTables(savedTables || [])
-      } catch (error) {
-        console.error('Failed to load saved data:', error)
-      }
-    }
+    fetch('/api/plan')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.guests && data.tables) {
+          setGuests(data.guests)
+          setTables(data.tables)
+        }
+        serverLoadedRef.current = true
+      })
+      .catch(err => {
+        console.error('Failed to load plan from server:', err)
+        serverLoadedRef.current = true
+      })
   }, [])
 
-  // Auto-save to localStorage whenever guests or tables change
+  // Auto-save to server whenever guests or tables change (after initial load)
   useEffect(() => {
-    if (guests.length > 0 || tables.length > 0) {
-      const dataToSave = { guests, tables }
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
-    }
+    if (!serverLoadedRef.current) return
+    if (guests.length === 0 && tables.length === 0) return
+    fetch('/api/plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guests, tables, version: '1.0' }),
+    }).catch(err => console.error('Failed to save plan to server:', err))
   }, [guests, tables])
 
   const sensors = useSensors(
@@ -169,7 +175,12 @@ function App() {
       setTables([])
       setHistory([])
       setHistoryIndex(-1)
-      localStorage.removeItem(STORAGE_KEY)
+      // Also clear on server
+      fetch('/api/plan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ guests: [], tables: [], version: '1.0' }),
+      }).catch(err => console.error('Failed to clear plan on server:', err))
     }
   }
 
