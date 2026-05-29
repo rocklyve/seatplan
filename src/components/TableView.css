@@ -3,7 +3,7 @@
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  min-height: calc(100vh - 180px);
+  /* No fixed min-height — let content determine height */
 }
 
 .table-view-header {
@@ -30,12 +30,17 @@
 
 .tables-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
   .tables-grid {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .table-view {
+    padding: 1rem;
   }
 }

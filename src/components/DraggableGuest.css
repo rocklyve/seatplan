@@ -2,20 +2,24 @@
   background: #f8f9fa;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
-  padding: 0.8rem 1rem;
+  padding: 0.75rem 1rem;
+  min-height: 44px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: grab;
-  transition: all 0.2s;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
   user-select: none;
+  touch-action: none; /* required for @dnd-kit touch drag */
 }
 
-.guest-card:hover {
-  background: #fff;
-  border-color: #667eea;
-  transform: translateX(4px);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+@media (hover: hover) and (pointer: fine) {
+  .guest-card:hover {
+    background: #fff;
+    border-color: #667eea;
+    transform: translateX(4px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+  }
 }
 
 .guest-card.dragging {
@@ -35,19 +39,25 @@
   background: transparent;
   border: none;
   color: #999;
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   cursor: pointer;
+  /* Enlarge tap target to 44×44 while keeping visual size small */
   padding: 0;
-  width: 24px;
-  height: 24px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
-  transition: all 0.2s;
+  border-radius: 6px;
+  transition: background 0.15s, color 0.15s;
+  touch-action: manipulation;
+  flex-shrink: 0;
 }
 
-.remove-btn:hover {
-  background: #fee;
-  color: #f44;
+@media (hover: hover) and (pointer: fine) {
+  .remove-btn:hover {
+    background: #fee;
+    color: #f44;
+  }
 }
