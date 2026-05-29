@@ -1,151 +1,166 @@
 # 💒 Wedding Seat Planner
 
-A beautiful, interactive wedding seat planner application with drag-and-drop functionality to easily organize your guests and table assignments.
+A visual, interactive wedding seat planner with drag-and-drop guest assignment, server-side persistence, and password protection.
 
 ## Features
 
-- ✨ **Drag & Drop Interface**: Intuitive drag-and-drop to assign guests to tables
-- 🎯 **Visual Feedback**: Real-time capacity indicators and visual cues
-- 📊 **Guest Management**: Add, remove, and track all your wedding guests
-- 🍽️ **Table Configuration**: Customize the number of tables and seats per table
-- 📱 **Responsive Design**: Works on desktop, tablet, and mobile devices
-- 💾 **Browser Storage**: Your data persists in the browser (note: not saved to disk)
+- **Drag & Drop**: Assign guests to tables by dragging — works on mouse and touch screens
+- **Touch Support**: Fully mobile-ready; drag-and-drop works on phones and tablets
+- **Guest Management**: Add guests one by one or in bulk, remove, and track assignments
+- **Table Configuration**: Customize number of tables and seats per table
+- **Auto-Save**: Changes are saved automatically to the server after you enter the save passcode once per session
+- **Password Protection**: The entire site is protected by a site password; saving requires an additional passcode
+- **Export / Import**: Download a JSON backup or import one at any time
+- **Undo / Redo**: Step back and forward through drag-and-drop history
 
 ## Prerequisites
 
-Before running the application, make sure you have the following installed:
+- **Node.js** 18 or higher
+- **npm** (included with Node.js)
 
-- **Node.js** (version 18 or higher recommended)
-- **npm** (comes with Node.js)
-
-To check if you have Node.js installed, run:
 ```bash
 node --version
 npm --version
 ```
 
-If you don't have Node.js, download it from [nodejs.org](https://nodejs.org/)
+## Setup
 
-## Installation
+### 1. Install dependencies
 
-1. Navigate to the project directory:
-```bash
-cd wedding-seat-planner
-```
-
-2. Install dependencies:
 ```bash
 npm install
 ```
 
-## Running the Application
+### 2. Create the secrets file
 
-1. Start the development server:
+Copy the template and fill in your own values:
+
+```bash
+cp secrets.template.json secrets.json
+```
+
+Edit `secrets.json`:
+
+```json
+{
+  "sitePassword": "your-site-password",
+  "savePasscode": "your-save-passcode",
+  "sessionSecret": "a-long-random-string"
+}
+```
+
+- **sitePassword** — required to open the app in the browser
+- **savePasscode** — required to save changes to the server (prompted once per session)
+- **sessionSecret** — used to sign the session cookie; use a long random string
+
+`secrets.json` is git-ignored and never committed.
+
+## Running in Development
+
+`npm run dev` starts both the Vite dev server (port 5173) and the Express API server (port 3001) together:
+
 ```bash
 npm run dev
 ```
 
-2. Open your browser and navigate to:
-```
-http://localhost:5173
+Open `http://localhost:5173` in your browser.
+
+You can also start them separately:
+
+```bash
+npm run dev:vite    # Vite only
+npm run dev:server  # Express only
 ```
 
-The application will automatically reload if you make changes to the code.
+## Running in Production
+
+Build the frontend, then run the Express server which serves the built files:
+
+```bash
+npm run build
+NODE_ENV=production node server.js
+```
+
+The app is available at `http://localhost:3001` (or set the `PORT` environment variable).
 
 ## How to Use
 
 ### Initial Setup
 
-1. **Configure Tables**: Click the "⚙️ Configure" button in the header
-2. Set the number of tables at your venue
-3. Set how many seats each table has
-4. Click "Save Configuration"
+1. Open the app — you will be prompted for the **site password**
+2. Click **⚙️ Configure** to set the number of tables and seats per table
 
 ### Adding Guests
 
-1. In the left sidebar, enter a guest's name in the input field
-2. Click "Add" or press Enter
-3. The guest will appear in the "Unassigned Guests" list
+- Type a name in the input field and press **Add** or Enter
+- Click **+ Bulk Add** to paste multiple names at once (one per line)
 
 ### Assigning Guests to Tables
 
-1. Click and drag a guest from the unassigned list
-2. Drop them onto any table on the right
-3. The table will show a visual indicator when you hover over it
-4. Release to assign the guest to that table
+1. Drag a guest from the **Unassigned Guests** sidebar onto any table
+2. Drag between tables to reassign
+3. Drag back to the unassigned area to unassign
 
-### Moving Guests Between Tables
-
-1. You can drag guests from one table to another
-2. To unassign a guest, drag them back to the "Unassigned Guests" area
+On first change you will be prompted for the **save passcode** — enter it once and all subsequent auto-saves in the session are silent.
 
 ### Removing Guests
 
-1. Click the "×" button next to any guest in the unassigned list
-2. To remove an assigned guest, first drag them back to unassigned, then remove
+Click the **×** button next to a guest in the unassigned list.
 
-## Building for Production
+### Undo / Redo
 
-To create a production-ready build:
+Use **↶ Undo** and **↷ Redo** in the header to step through drag-and-drop history.
 
-```bash
-npm run build
-```
+### Export / Import
 
-The built files will be in the `dist` directory. You can preview the production build with:
+- **💾 Export** — downloads a JSON file of the current plan
+- **📂 Import** — loads a previously exported JSON file
 
-```bash
-npm run preview
-```
+### Logout
 
-## Technology Stack
-
-- **React 18**: Modern UI framework
-- **Vite**: Fast build tool and dev server
-- **@dnd-kit**: Accessible drag-and-drop library
-- **CSS3**: Modern styling with gradients and animations
+Click **🔓 Logout** to end your session.
 
 ## Data Persistence
 
-Currently, the application stores data in the browser's memory. When you refresh the page, your data will be lost. To persist data:
+- The seating plan is stored in `seatplan.json` at the project root
+- It is saved automatically on every change (after the save passcode is entered)
+- `seatplan.json` is git-ignored and never committed
+- To seed the initial data from an existing export: `cp your-export.json seatplan.json`
 
-1. **Option 1**: Keep the browser tab open while planning
-2. **Option 2**: Take screenshots of your final arrangement
-3. **Future Enhancement**: Add localStorage or file export functionality
+## Technology Stack
 
-## Browser Compatibility
+- **React 18** — UI
+- **Vite** — dev server and build tool
+- **@dnd-kit** — accessible, touch-ready drag-and-drop
+- **Express** — API server and production static file server
+- **express-session** — session-based authentication
 
-Works best in modern browsers:
-- Chrome/Edge (version 90+)
-- Firefox (version 88+)
-- Safari (version 14+)
+## Project Files (git-ignored)
+
+| File | Purpose |
+|---|---|
+| `secrets.json` | Site password, save passcode, session secret |
+| `seatplan.json` | Live seating plan data |
+
+Use `secrets.template.json` as the reference for the required structure.
 
 ## Troubleshooting
 
-### Port already in use
-If port 5173 is already in use, Vite will automatically try the next available port (5174, 5175, etc.)
+**Server won't start — "secrets.json not found"**
+Copy the template: `cp secrets.template.json secrets.json` and fill in the values.
 
-### Installation errors
-If you encounter errors during `npm install`, try:
+**Port already in use**
+Set a different port: `PORT=4000 node server.js`
+
+**npm install hangs or fails**
 ```bash
 rm -rf node_modules package-lock.json
 npm install
 ```
 
-### Application not loading
-1. Make sure the dev server is running (`npm run dev`)
-2. Check the terminal for any error messages
-3. Try clearing your browser cache
-4. Try a different browser
-
-## License
-
-This project is free to use for personal wedding planning purposes.
-
-## Support
-
-For issues or questions, please create an issue in the project repository.
+**App not loading in dev**
+Make sure both servers are running (`npm run dev` starts both). Check the terminal for errors.
 
 ---
 
-**Happy Planning! 🎉**
+*Happy Planning! 🎉*
